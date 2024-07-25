@@ -13,11 +13,33 @@
 <link rel="apple-touch-icon" href="https://cdn.jotfor.ms/assets/img/favicons/favicon-2021-light%402x.png">
 <script>
 function sendHeight() {
-    var height = document.body.scrollHeight;
-    window.parent.postMessage(['setHeight', height], '*');
+    var height = document.body.offsetHeight;
+    window.parent.postMessage({
+        type: 'setHeight',
+        height: height
+    }, '*');
 }
+
+// Send height after initial load
 window.addEventListener('load', sendHeight);
-window.addEventListener('resize', sendHeight);
+
+// Send height after any internal DOM changes
+var observer = new MutationObserver(sendHeight);
+observer.observe(document.body, { 
+    attributes: true, 
+    childList: true, 
+    subtree: true 
+});
+
+// Send height after images and other resources are loaded
+window.addEventListener('load', function() {
+    if (document.readyState === 'complete') {
+        sendHeight();
+    }
+});
+
+// Periodic check (every 1000ms) for any changes
+setInterval(sendHeight, 1000);
 </script>
 <script>
           var favicon = document.querySelector('link[rel="shortcut icon"]');
