@@ -825,27 +825,34 @@ JotForm.paymentExtrasOnTheFly([null,null,{"name":"submit2","qid":"2","text":"Get
   </script>
 </form>
 <script>
-  // Initial resize
-  parent.resizeIframeToContentSize(window.frameElement);
+  function sendHeight() {
+    var height = document.body.scrollHeight;
+    window.parent.postMessage({
+      type: 'resizeIframe',
+      height: height
+    }, '*');
+  }
 
-  // Set up auto-detect for changes
-  (function() {
-    var container = document.body;
-    var lastScrollHeight = container.scrollHeight;
+  // Send height after initial load
+  window.addEventListener('load', sendHeight);
 
-    function watch() {
-      cancelAnimationFrame(watch.watcher);
+  // Send height after any internal DOM changes
+  var observer = new MutationObserver(sendHeight);
+  observer.observe(document.body, { 
+    attributes: true, 
+    childList: true, 
+    subtree: true 
+  });
 
-      if (lastScrollHeight !== container.scrollHeight) {
-        parent.postMessage({type: 'resizeIframe'}, '*');
-        lastScrollHeight = container.scrollHeight;
-      }
+  // Periodic check (every 500ms) for any changes
+  setInterval(sendHeight, 500);
 
-      watch.watcher = requestAnimationFrame(watch);
-    }
-
-    watch.watcher = requestAnimationFrame(watch);
-  })();
+  // Additional check for when JotForm might modify the content
+  if (typeof JotForm !== 'undefined') {
+    JotForm.callback = function() {
+      setTimeout(sendHeight, 100);
+    };
+  }
 </script>
 </body>
 </html><script type="text/javascript">JotForm.ownerView=true;</script><script type="text/javascript">JotForm.isNewSACL=true;</script>
