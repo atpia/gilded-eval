@@ -12,6 +12,14 @@
 <link rel="shortcut icon" href="https://cdn.jotfor.ms/assets/img/favicons/favicon-2021-light%402x.png">
 <link rel="apple-touch-icon" href="https://cdn.jotfor.ms/assets/img/favicons/favicon-2021-light%402x.png">
 <script>
+function sendHeight() {
+    var height = document.body.scrollHeight;
+    window.parent.postMessage(['setHeight', height], '*');
+}
+window.addEventListener('load', sendHeight);
+window.addEventListener('resize', sendHeight);
+</script>
+<script>
           var favicon = document.querySelector('link[rel="shortcut icon"]');
           window.isDarkMode = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
           if(favicon && window.isDarkMode) {
